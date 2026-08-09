@@ -9,7 +9,7 @@
 #define KEY_PRESS(key) Keyboard::isKeyPressed(Keyboard::Key::key)
 #define WINDOW_H 800
 #define WINDOW_W 1200
-#define VALID_AREA WINDOW_W - 200
+#define VALID_AREA WINDOW_W - 250
 #define DRAW_LIST_SIZE UINT16_MAX
 #define BALL_LIST_SIZE UINT16_MAX
 
@@ -43,12 +43,12 @@ struct Ball {
     Ball() {
         this->y_velocity = 0;
         this->gravity_mult = rand_range(30, 50) / 20.0f;
-        this->sprite = CircleShape(rand_range(5, 30));
+        this->sprite = CircleShape(rand_range(5, 20));
         this->sprite.setOrigin(this->sprite.getGeometricCenter());
         this->sprite.setPosition({static_cast<f32>(rand_range(0, 10)),
                                   static_cast<f32>(rand_range(-15, 25))});
         this->sprite.setFillColor(
-            Color(rand_range(0, 255), rand_range(0, 255), rand_range(0, 127)));
+            Color(rand_range(0, 255), rand_range(0, 255), rand_range(0, 255)));
         this->x_velocity = rand_range(20, 100);
     }
 };
@@ -124,6 +124,7 @@ int main() {
     for (auto &b : ball_list)
         b = nullptr;
     RenderWindow game_window(VideoMode({WINDOW_W, WINDOW_H}), "Balls!");
+    game_window.setFramerateLimit(0);
 
     RectangleShape paddle({paddle_w, paddle_h});
     pushdl(&paddle);
@@ -139,7 +140,7 @@ int main() {
     Clock cooldown;
     Clock delta_clock;
 
-    std::array<RectangleShape, 32> hearts;
+    std::array<RectangleShape, 64> hearts;
     for (int i = 0; i < hearts.size(); i++) {
         hearts[i].setSize({25, 25});
         hearts[i].setPosition({20 + 30.0f * i, 20});
@@ -156,6 +157,8 @@ int main() {
     delim.setOutlineThickness(5);
     delim.setFillColor(Color::Transparent);
     delim.setPosition({VALID_AREA, 0});
+
+    Color current_color = Color::Blue;
 
     while (game_window.isOpen()) {
         while (const std::optional event = game_window.pollEvent()) {
@@ -214,11 +217,12 @@ int main() {
                     if (ai_mode)
                         paddle.setPosition(
                             {spr->getPosition().x, paddle.getPosition().y});
-
                     ball_list[i]->y_velocity +=
-                        dt * 0.1f * ball_list[i]->gravity_mult;
-                    spr->move({100 * dt * ball_list[i]->x_velocity / 20.0f,
-                               ball_list[i]->y_velocity});
+                        (750.0f * ball_list[i]->gravity_mult) * dt;
+                    f32 move_x = 4.0f * ball_list[i]->x_velocity * dt;
+                    f32 move_y = ball_list[i]->y_velocity * dt;
+
+                    spr->move({move_x, move_y});
 
                     if (spr->getPosition().x > VALID_AREA) {
                         score++;
@@ -250,15 +254,17 @@ int main() {
 
                     if (spr->getGlobalBounds().findIntersection(
                             paddle.getGlobalBounds())) {
-
-                        paddle_w += 0.5;
+                        current_color =
+                            Color(rand_range(0, 255), rand_range(0, 255),
+                                  rand_range(0, 255));
+                        paddle_w += 1.5;
 
                         paddle.setSize({paddle_w, paddle_h});
                         paddle.setOrigin(paddle.getSize() / 2.0f);
                         spr->move({0, -2 * paddle_h});
                         ball_list[i]->y_velocity =
-                            -fabs(ball_list[i]->y_velocity) * 0.9f;
-                        ball_list[i]->x_velocity += 10;
+                            -fabs(ball_list[i]->y_velocity) * 1.01f;
+                        ball_list[i]->x_velocity += 30;
                     }
                 }
             }
@@ -282,13 +288,12 @@ int main() {
             r.setFillColor(Color::Transparent);
         }
 
-        game_window.clear(Color::Blue);
-
         for (i32 i = 0; i < std::min(lives, static_cast<i32>(hearts.size()));
              i++) {
             hearts[i].setFillColor(Color::Red);
             game_window.draw(hearts[i]);
         }
+        game_window.clear(current_color);
 
         for (i32 i = 0; i < DRAW_LIST_SIZE; i++)
             if (draw_list[i])
