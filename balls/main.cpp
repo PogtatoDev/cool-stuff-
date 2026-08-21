@@ -29,6 +29,11 @@ i32 rand_range(i32 min, i32 max) {
     return dist(rng);
 }
 
+Color rand_color() {
+    return Color(rand_range(255, 255), rand_range(255, 255),
+                 rand_range(255, 255));
+}
+
 std::array<Drawable *, DRAW_LIST_SIZE> draw_list;
 i32 draw_idx = 0;
 
@@ -39,6 +44,7 @@ struct Ball {
     f32 y_velocity;
     f32 gravity_mult;
     CircleShape sprite;
+    bool evil;
 
     Ball() {
         this->y_velocity = 0;
@@ -50,6 +56,11 @@ struct Ball {
         this->sprite.setFillColor(
             Color(rand_range(0, 255), rand_range(0, 255), rand_range(0, 255)));
         this->x_velocity = rand_range(20, 100);
+
+        if (rand_range(0, 150) == 150)
+            this->evil = true;
+        else
+            this->evil = false;
     }
 };
 
@@ -223,7 +234,11 @@ int main() {
                     f32 move_y = ball_list[i]->y_velocity * dt;
 
                     spr->move({move_x, move_y});
-
+                    if (ball_list[i]->evil) {
+                        spr->setRadius(spr->getRadius() - 2.0 * dt);
+                        spr->setPointCount(3);
+                        spr->setFillColor(rand_color());
+                    }
                     if (spr->getPosition().x > VALID_AREA) {
                         score++;
                         if (lives < 20)
@@ -254,9 +269,7 @@ int main() {
 
                     if (spr->getGlobalBounds().findIntersection(
                             paddle.getGlobalBounds())) {
-                        current_color =
-                            Color(rand_range(0, 255), rand_range(0, 255),
-                                  rand_range(0, 255));
+                        current_color = Color(rand_color());
                         paddle_w += 1.5;
 
                         paddle.setSize({paddle_w, paddle_h});
@@ -293,7 +306,7 @@ int main() {
             hearts[i].setFillColor(Color::Red);
             game_window.draw(hearts[i]);
         }
-        game_window.clear(current_color);
+        game_window.clear(Color::Blue);
 
         for (i32 i = 0; i < DRAW_LIST_SIZE; i++)
             if (draw_list[i])

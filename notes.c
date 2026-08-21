@@ -13,7 +13,6 @@ void malloc_error_check(void *ptr) {
         exit(-1);
     }
 }
-
 void get_processed_name(char *src, char *dest) {
     int i;
 
@@ -183,7 +182,8 @@ int main(int argc, char *argv[]) {
 
         new_note(name, data);
     }
-
+    // shing!
+    // i could
     else if (strcmp(argv[1], "read") == 0) {
         char name[NOTE_FILENAME_SIZE + sizeof(".note")];
 

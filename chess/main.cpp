@@ -20,6 +20,7 @@ typedef float f32;
 typedef double f64;
 
 using namespace sf;
+// good morning!
 
 enum PIECE_TYPE { KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN };
 
