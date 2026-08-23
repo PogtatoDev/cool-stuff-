@@ -1,0 +1,10 @@
+[package]
+name = "imagevieweretintshkjfgdf"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+minifb = "0.26"
+num-traits = "0.2.19"
+rand = "0.10.2"
+minifbutils = { path = "/home/seth/cool-stuff/minifbutils" }
