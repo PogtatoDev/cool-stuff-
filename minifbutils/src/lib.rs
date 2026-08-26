@@ -1,7 +1,6 @@
 use num_traits::AsPrimitive;
 use std::sync::OnceLock;
 
-
 static W_LOCK: OnceLock<usize> = OnceLock::new();
 static H_LOCK: OnceLock<usize> = OnceLock::new();
 
@@ -11,12 +10,12 @@ pub fn init_utils(width: usize, length: usize) {
 }
 
 #[inline(always)]
-fn width() -> usize {
-    *W_LOCK.get().expect("initialize utils first!!!!!!!!!!!!!!")
+fn width() -> u32 {
+    *W_LOCK.get().expect("initialize utils first!!!!!!!!!!!!!!") as u32
 }
 #[inline(always)]
-fn height() -> usize {
-    *H_LOCK.get().expect("initialize utils first!!!!!!!!!!!!!!")
+fn height() -> u32 {
+    *H_LOCK.get().expect("initialize utils first!!!!!!!!!!!!!!") as u32
 }
 
 pub const RED: u32 = 0xFF0000;
@@ -36,26 +35,27 @@ impl<T> Vector2<T> {
     }
 }
 
-#[inline]
+#[inline(always)]
 pub fn index_to_position(index: u32) -> Vector2<u32> {
-    Vector2::new(
-        (index as usize % width()) as u32,
-        ((index as usize / width()) as f32) as u32,
-    )
+    Vector2::new(index % width(), index / width())
 }
 
-#[inline]
+#[inline(always)]
 pub fn position_to_index(x: u32, y: u32) -> u32 {
-    (y as usize * width() + x as usize) as u32
+    y * width() + x
 }
 
-#[inline]
+#[inline(always)]
 pub fn rgb(r: u32, g: u32, b: u32) -> u32 {
     (r << 16) | (g << 8) | b
 }
 
-#[inline]
+#[inline(always)]
 pub fn draw_pixel(position: &Vector2<u32>, color: u32, buffer: &mut Vec<u32>) -> () {
+    if position.x > width() || position.y > height() {
+        return;
+    }
+
     buffer[position_to_index(position.x, position.y) as usize] = color;
 }
 
@@ -66,36 +66,26 @@ pub fn draw_rect(
     rect_height: u32,
     filled: bool,
     buffer: &mut Vec<u32>,
-) -> () {
-    let start_x: usize = position.x as usize;
-    let start_y: usize = position.y as usize;
-    let end_x: usize = (start_x + rect_width as usize).min(width());
-    let end_y: usize = (start_y + rect_height as usize).min(height());
-
-    if start_x >= width()
-        || start_y >= height()
-        || end_y >= height()
-        || end_x >= width()
-    {
-        return;
-    }
+) -> () { 
+    let end_x: u32 = (position.x + rect_width).min(width());
+    let end_y: u32 = (position.y + rect_height).min(height());
 
     if filled {
-        for y in start_y..end_y {
-            let row_start: usize = position_to_index(start_x as u32, y as u32) as usize;
-            let row_end: usize = position_to_index(end_x as u32, y as u32) as usize;
-            buffer[row_start..row_end].fill(color);
+        for y in position.y..end_y {
+            let row_start: u32 = position_to_index(position.x, y);
+            let row_end: u32 = position_to_index(end_x, y);
+            buffer[row_start as usize..row_end as usize].fill(color);
         }
     } else {
-        for x in start_x..end_x {
-            draw_pixel(&Vector2::new(x as u32, start_y as u32), color, buffer);
-            if end_y > start_y {
+        for x in position.x..end_x {
+            draw_pixel(&Vector2::new(x as u32, position.y as u32), color, buffer);
+            if end_y > position.y {
                 draw_pixel(&Vector2::new(x as u32, (end_y - 1) as u32), color, buffer);
             }
         }
-        for y in start_y..end_y {
-            draw_pixel(&Vector2::new(start_x as u32, y as u32), color, buffer);
-            if end_x > start_x {
+        for y in position.y..end_y {
+            draw_pixel(&Vector2::new(position.x as u32, y as u32), color, buffer);
+            if end_x > position.x {
                 draw_pixel(&Vector2::new((end_x - 1) as u32, y as u32), color, buffer);
             }
         }
@@ -104,4 +94,37 @@ pub fn draw_rect(
 
 pub fn tuple_to_vector2<T: AsPrimitive<u32> + Copy>(tuple: (T, T)) -> Vector2<u32> {
     Vector2::<u32>::new(tuple.0.as_(), tuple.1.as_())
+}
+
+pub fn draw_circle(
+    mut buffer: &mut Vec<u32>,
+    position: &Vector2<u32>,
+    radius: u32,
+    color: u32,
+) -> () {
+    let mut d: isize = 3 - 2 * radius as isize;
+    let mut x: u32 = 0;
+    let mut y = radius;
+    while y >= x {
+        x += 1;
+        if d > 0 {
+            y -= 1;
+            d = d + 4 * (x as isize - y as isize) + 10;
+        } else {
+            d = d + 4 * x as isize + 6;
+        }
+
+        let xpx = position.x + x;       let xmx = position.x - x;
+        let xpy = position.x + y;       let xmy = position.x - y;
+        let ypx = position.y + x;
+        let ypy = position.y + y;       let ymy = position.y - y;
+        draw_pixel(&Vector2::new(xpx, ypy), color, &mut buffer);
+        draw_pixel(&Vector2::new(xmx, ypy), color, &mut buffer);
+        draw_pixel(&Vector2::new(xpx, ymy), color, &mut buffer);
+        draw_pixel(&Vector2::new(xmx, ymy), color, &mut buffer);
+        draw_pixel(&Vector2::new(xpy, ypx), color, &mut buffer);
+        draw_pixel(&Vector2::new(xmy, ypx), color, &mut buffer);
+        draw_pixel(&Vector2::new(xpy, xmy), color, &mut buffer);
+        draw_pixel(&Vector2::new(xmy, xmy), color, &mut buffer);
+    }
 }
