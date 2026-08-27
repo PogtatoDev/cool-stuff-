@@ -155,7 +155,3 @@ bool sv_cmp_cstr(StringView sv, char *cstr) {
   return !(bool)strcmp(sv.text, cstr);
 }
 
-int main() {
-  printf("fat balls");
-  return 0;
-}

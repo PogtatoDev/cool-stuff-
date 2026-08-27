@@ -16,5 +16,3 @@ for input in sys.argv[1:]:
         for hex in hex_list:
             img.write(hex[1:].upper())
             img.write(";")
-
-

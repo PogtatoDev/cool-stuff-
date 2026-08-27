@@ -1,8 +1,7 @@
+use image::GenericImageView;
 use minifb::*;
-use std::fs::File;
-use std::io::prelude::*;
-use std::env::args;
-
+use std::env::{self, args};
+use std::fmt::Write;
 
 fn parse(raw: String) -> std::result::Result<(usize, usize, Vec<u32>), String> {
     let mut buf: String = String::new();
@@ -31,7 +30,10 @@ fn parse(raw: String) -> std::result::Result<(usize, usize, Vec<u32>), String> {
 
         if start {
             if i == ';' {
-                colors.push(u32::from_str_radix(buf.as_str(), 16).expect("input must be a proper .kif file"));
+                colors.push(
+                    u32::from_str_radix(buf.as_str(), 16)
+                        .expect("failed to convert to .kif file apparently"),
+                );
                 buf.clear();
             } else {
                 buf.push(i);
@@ -44,24 +46,53 @@ fn parse(raw: String) -> std::result::Result<(usize, usize, Vec<u32>), String> {
     } else {
         Ok((resolution.0, resolution.1, colors))
     }
-
 }
 
-fn main() -> std::io::Result<()> {
+fn convert_to_kif(filename: String) -> String {
+    let img = image::open(filename).unwrap();
+    let mut kif_file = String::new();
+    write!(kif_file, "{}x{}=", img.width(), img.height()).unwrap();
+
+    for (_x, _y, pixel) in img.pixels() {
+        let channels = pixel.0;
+        write!(
+            kif_file,
+            "{:02x}{:02x}{:02x};",
+            channels[0], channels[1], channels[2]
+        )
+        .unwrap();
+    }
+
+    kif_file
+}
+
+fn main() {
     let arghhh: Vec<String> = args().collect();
-    let mut img: File = File::open(arghhh[1].clone())?;
-    let mut data_raw = String::new();
-    img.read_to_string(&mut data_raw)?;
-    let (width, height, buffer) = parse(data_raw).unwrap();
+    let data_raw: String = convert_to_kif(arghhh[1].clone());
+    let (width, height, buffer): (usize, usize, Vec<u32>) = parse(data_raw).unwrap();
     dbg!(buffer.len());
     dbg!(width, height);
 
-    let mut window: Window = Window::new("image viewer??!?!?!?", width, height, WindowOptions::default()).unwrap();
-    window.set_target_fps(60);
+    let mut window: Window = Window::new(
+        "image viewer??!?!?!?",
+        width,
+        height,
+        WindowOptions {
+            resize: true,
+            ..WindowOptions::default()
+        },
+    )
+    .unwrap();
+    window.set_target_fps(30);
+    window.update_with_buffer(&buffer, width, height).unwrap();
+    let mut old_size: (usize, usize) = (0, 0);
 
     while window.is_open() {
-        window.update_with_buffer(&buffer, width, height).unwrap();
-    }
+        window.update();
+        if window.get_size() != old_size {
+            window.update_with_buffer(&buffer, width, height).unwrap();
+        }
 
-    Ok(())
+        old_size = window.get_size();
+    }
 }
