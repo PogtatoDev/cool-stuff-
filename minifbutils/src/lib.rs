@@ -11,11 +11,11 @@ pub fn init_utils(width: usize, length: usize) {
 
 #[inline(always)]
 fn width() -> u32 {
-    *W_LOCK.get().expect("initialize utils first!!!!!!!!!!!!!!") as u32
+    *W_LOCK.get().expect("minibufutils: utils not initialized") as u32
 }
 #[inline(always)]
 fn height() -> u32 {
-    *H_LOCK.get().expect("initialize utils first!!!!!!!!!!!!!!") as u32
+    *H_LOCK.get().expect("minibufutils: utils not initialized") as u32
 }
 
 pub const RED: u32 = 0xFF0000;
