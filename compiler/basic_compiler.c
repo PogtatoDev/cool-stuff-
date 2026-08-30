@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "../stringview.c"
 
+// i have no motivation to finish this acxtually
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
