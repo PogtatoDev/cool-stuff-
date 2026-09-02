@@ -1,5 +1,7 @@
 use num_traits::AsPrimitive;
 use std::sync::OnceLock;
+use std::ops::{Add, Mul, Sub};
+
 
 static W_LOCK: OnceLock<usize> = OnceLock::new();
 static H_LOCK: OnceLock<usize> = OnceLock::new();
@@ -24,14 +26,28 @@ pub const GREEN: u32 = 0x0000FF;
 pub const BLACK: u32 = 0x000000;
 pub const WHITE: u32 = 0xFFFFFF;
 
+
 pub struct Vector2<T> {
     pub x: T,
     pub y: T,
 }
 
-impl<T> Vector2<T> {
+impl<T: num_traits::Num + Copy + num_traits::NumCast> Vector2<T> {
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
+    }
+
+    pub fn rotate(self, angle_rad: f32) -> Vector2<T> {
+        let cos = angle_rad.cos();
+        let sin = angle_rad.sin();
+
+        let x_rotated: f32 = num_traits::cast::<T, f32>(self.x).unwrap() * cos - num_traits::cast::<T, f32>(self.x).unwrap() * sin;
+        let y_rotated: f32 = num_traits::cast::<T, f32>(self.x).unwrap() * sin - num_traits::cast::<T, f32>(self.x).unwrap() * cos;
+
+        Vector2::new(
+            num_traits::cast(x_rotated).unwrap(),
+            num_traits::cast(y_rotated).unwrap()
+        )
     }
 }
 
@@ -66,7 +82,7 @@ pub fn draw_rect(
     rect_height: u32,
     filled: bool,
     buffer: &mut Vec<u32>,
-) -> () { 
+) -> () {
     let end_x: u32 = (position.x + rect_width).min(width());
     let end_y: u32 = (position.y + rect_height).min(height());
 
@@ -74,7 +90,10 @@ pub fn draw_rect(
         for y in position.y..end_y {
             let row_start: u32 = position_to_index(position.x, y);
             let row_end: u32 = position_to_index(end_x, y);
-            buffer[row_start as usize..row_end as usize].fill(color);
+
+            if (row_end as usize) <= buffer.len() {
+                buffer[row_start as usize..row_end as usize].fill(color);
+            }
         }
     } else {
         for x in position.x..end_x {

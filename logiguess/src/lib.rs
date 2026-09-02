@@ -4,34 +4,35 @@ pub enum LogLevel {
     Info,
     Warning,
     Error,
-    Lethal
+    Fatal
+}
+
+impl LogLevel {
+    pub fn prefix(&self) -> &str {
+        match self {
+            LogLevel::Info => "[INFO]",
+            LogLevel::Warning => "[WARNING]",
+            LogLevel::Error => "[ERROR]",
+            LogLevel::Fatal => "[FATAL]"
+        }
+    }
+
+    pub fn color(&self) -> Color {
+        match self {
+            LogLevel::Info => Color::Green,
+            LogLevel::Warning => Color::Yellow,
+            LogLevel::Error => Color::Red,
+            LogLevel::Fatal => Color::BrightRed
+        }
+    }
 }
 
 pub fn log(level: LogLevel, text: &str) {
-    let prefix: &str;
-
-    match level {
-        LogLevel::Info => prefix = "[INFO]",
-        LogLevel::Warning => prefix = "[WARNING]",
-        LogLevel::Error => prefix = "[ERROR]",
-        LogLevel::Lethal => prefix = "[LETHAL]"
-    }
-
-    println!("{}: {}", prefix, text);
+    println!("{}: {}", level.prefix(), text);
 }
 
 pub fn log_color(level: LogLevel, text: &str) {
-    let prefix: &str;
-    let color: Color;
-
-    match level {
-        LogLevel::Info => { prefix = "[INFO]"; color = Color::Green },
-        LogLevel::Warning => { prefix = "[WARNING]"; color = Color::Yellow },
-        LogLevel::Error => { prefix = "[ERROR]"; color = Color::Red },
-        LogLevel::Lethal => { prefix = "[LETHAL]"; color = Color::BrightRed }
-    }
-
-    println!("{}: {}", prefix.color(color), text);
+    println!("{}: {}", level.prefix().color(level.color()), text);
 }
 
 

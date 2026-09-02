@@ -4,13 +4,6 @@ use std::env::{self, args};
 use std::fmt::Write;
 use std::io::{self, Write as IOWrite};
 
-enum LogLevel {
-    Info,
-    Error,
-    Warning,
-    Fatal,
-}
-
 fn parse(raw: String) -> (usize, usize, Vec<u32>) {
     println!("[INFO]: started parsing .kif format into buffer");
     let mut buf: String = String::new();
@@ -73,16 +66,17 @@ fn convert_to_kif(filename: String) -> String {
     println!("[INFO]: start converting file {} to .kif format", &filename);
     let mut img: DynamicImage = DynamicImage::new(0, 0, image::ColorType::Rgb16);
     match image::open(&filename) {
+        hwello 
         Ok(i) => {
             img = i;
             println!("[INFO]: loaded file {}", &filename);
         }
 
         Err(e) => {
-            eprintln!("[ERROR] failed to open file {}: {}", &filename, e);
+            eprintln!("[ERROR]: failed to open file {}: {}", &filename, e);
+            print!("Try again? [y/N]: ");
             io::stdout().flush().unwrap();
 
-            print!("Try again? [y/N]: ");
             let mut input = String::new();
             io::stdin()
                 .read_line(&mut input)
