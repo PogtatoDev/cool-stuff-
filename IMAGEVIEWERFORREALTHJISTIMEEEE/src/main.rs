@@ -64,7 +64,7 @@ fn parse(raw: String) -> (usize, usize, Vec<u32>) {
 
 fn convert_to_kif(filename: String) -> String {
     println!("[INFO]: start converting file {} to .kif format", &filename);
-    let mut img: DynamicImage = DynamicImage::new(0, 0, image::ColorType::Rgb16);
+    let img: DynamicImage;
     match image::open(&filename) { 
         Ok(i) => {
             img = i;

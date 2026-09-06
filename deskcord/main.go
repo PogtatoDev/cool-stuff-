@@ -46,15 +46,17 @@ func main() {
 }
 
 func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
-	sendMessage := func(ID string) {
+	sendMessage := func(ID string) error {
 		_, err := s.ChannelMessageSend(
 			m.ChannelID,
 			ID,
 		)
 
 		if err != nil {
-			log.Fatal("hi")
+			return err
 		}
+
+		return nil
 	}
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -79,32 +81,18 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 		sendMessage("die")
 	}
 
-	if m.Content == "bomb deme reference" {
+	switch m.Content {
+	case "bomb deme reference":
 		for i := range 3 {
 			sendMessage(strconv.Itoa(int(math.Abs(float64(3 - i)))))
 		}
 
 		sendMessage("bom b")
-	}
-
-	switch m.Author.ID {
-	case s.State.User.ID:
-		return
-	case "1324266845414625290": // arop
-		sendMessage("https://gif.fxtwitter.com/tweet_video/HQkcWVRXsAEv2RT.webp")
-		return
-	case "1385380882273140756": // switchflip
-		s.MessageReactionAdd(m.ChannelID, m.ID, "⭐")
-		return
-	case "1006951658774863943": // duck
-		sendMessage("what time he guck")
-		return
-	case "1163184972912398397": // who
-		sendMessage("orooeoeroero")
-		return
-	}
-
-	if m.Content == "demirramon" {
+	case "micheal":
+		sendMessage("are you taking the micheal")
+		sendMessage("https://klipy.com/gifs/renmakesmusic-micheal")
+	
+	case "demirramon":
 		payload := strings.NewReader(`origin=comments&page=1`)
 		req, err := http.NewRequest("POST", "https://demirramon.com/ajax/comments/load", payload)
 		if err != nil {
@@ -114,7 +102,7 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := client.Do(req)
 		if err != nil {
 			return
 		}
@@ -126,10 +114,41 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 		_ = json.Unmarshal(jsonData, &data)
 
 		sendMessage(data.Comments[1].Comment)
-	}
-	
-	if m.Content == "die die die die die" && m.Author.ID == "1470860308875710716" {
+	case "die die die":
 		s.Close()
 		os.Exit(0)
+
+	case "green goo":
+		msg, err := os.ReadFile("greengoo")
+		if err != nil {
+			log.Fatal("lad")
+			return
+		}
+
+		sendMessage(string(msg))
+	}
+
+	
+	switch m.Author.ID {
+	case s.State.User.ID:
+		return
+	case "1324266845414625290": // arop
+		sendMessage(m.Content + "\nhttps://gif.fxtwitter.com/tweet_video/HQkcWVRXsAEv2RT.webp")
+		return
+	case "1385380882273140756": // switchflip
+		s.MessageReactionAdd(m.ChannelID, m.ID, "⭐")
+		return
+	case "1006951658774863943": // duck
+		sendMessage("what time he guck")
+		return
+	case "1163184972912398397": // who
+		sendMessage("orooeoeroero")
+		return
+	case "948354771729911828":
+		sendMessage(m.Content)
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🇫")
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🅰️")
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🇬")
+		return
 	}
 }
