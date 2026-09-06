@@ -1,0 +1,65 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
+
+#define WINDOW_H 640
+#define WINDOW_W 640
+
+
+int main() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        printf("whar");
+        exit(1);
+    }
+
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
+
+    SDL_CreateWindowAndRenderer(WINDOW_W, WINDOW_H, SDL_WINDOW_SHOWN, &window, &renderer);
+
+
+    int window_open = 1;
+    SDL_Event event;
+
+    SDL_Rect rects[255];
+    for (int i = 0; i < sizeof(rects) / sizeof(rects[0]); i++) {
+        rects[i] = (SDL_Rect) {
+            .x = 0,
+            .y = 0,
+            .w = 50,
+            .h = 50
+        };
+    }
+
+    while (window_open) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                printf("bazinga");
+                window_open = 0;
+            }
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        SDL_RenderClear(renderer);
+
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        for (int i = 0; i < sizeof(rects) / sizeof(rects[0]); i++) {
+            rects[i].x = rand() % WINDOW_W;
+            rects[i].y = rand() % WINDOW_H;
+            rects[i].w = rand() % 10;
+            rects[i].h = rand() % 10;
+
+            rects[i].x = rects[i].x - rects[i].w / 2;
+            rects[i].y = rects[i].y - rects[i].h / 2;
+
+            SDL_RenderFillRect(renderer, &rects[i]);
+        }
+
+        SDL_RenderPresent(renderer);
+    }
+
+
+    SDL_Quit();
+    return 0;
+}

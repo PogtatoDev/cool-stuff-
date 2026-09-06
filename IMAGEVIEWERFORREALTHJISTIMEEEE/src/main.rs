@@ -10,7 +10,7 @@ fn parse(raw: String) -> (usize, usize, Vec<u32>) {
     let mut colors: Vec<u32> = Vec::new();
     let mut start: bool = false;
     let mut resolution: (usize, usize) = (0, 0);
-
+    
     for i in raw.chars() {
         if i.is_whitespace() {
             continue;
@@ -65,8 +65,7 @@ fn parse(raw: String) -> (usize, usize, Vec<u32>) {
 fn convert_to_kif(filename: String) -> String {
     println!("[INFO]: start converting file {} to .kif format", &filename);
     let mut img: DynamicImage = DynamicImage::new(0, 0, image::ColorType::Rgb16);
-    match image::open(&filename) {
-        hwello 
+    match image::open(&filename) { 
         Ok(i) => {
             img = i;
             println!("[INFO]: loaded file {}", &filename);

@@ -2,7 +2,7 @@
 #include <array>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-
+/// this file sucks dont use this 
 #ifndef DRAW_QUEUE_SIZE
 #define DRAW_QUEUE_SIZE 128
 #endif
