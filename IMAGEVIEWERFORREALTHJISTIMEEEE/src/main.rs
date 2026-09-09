@@ -10,7 +10,6 @@ fn parse(raw: String) -> (usize, usize, Vec<u32>) {
     let mut colors: Vec<u32> = Vec::new();
     let mut start: bool = false;
     let mut resolution: (usize, usize) = (0, 0);
-    
     for i in raw.chars() {
         if i.is_whitespace() {
             continue;
