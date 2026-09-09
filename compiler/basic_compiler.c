@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
     }
 
     fclose(src);
+    // im totally finishing this later yah
     fclose(out);
     remove(argv[1]);
     return 0;

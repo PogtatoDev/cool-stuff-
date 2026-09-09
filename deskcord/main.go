@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"math"
@@ -12,18 +13,22 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 var client *http.Client
+var token string
+var cat_timer time.Ticker
 
 func init() {
 	client = &http.Client{}
+	token = os.Getenv("FWEH")
+	cat_timer = *time.NewTicker(1 * time.Second)
 }
 
 func main() {
-	token := os.Getenv("FWEH")
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		log.Fatal("whar")
@@ -31,11 +36,11 @@ func main() {
 	}
 
 	dg.AddHandler(michealTimeHellYeah)
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
+	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages)
 
 	err = dg.Open()
 	if err != nil {
-		log.Fatal("no way lad")
+		log.Fatal(err)
 		return
 	}
 	sc := make(chan os.Signal, 1)
@@ -46,10 +51,10 @@ func main() {
 }
 
 func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
-	sendMessage := func(ID string) error {
+	sendMessage := func(msg string) error {
 		_, err := s.ChannelMessageSend(
 			m.ChannelID,
-			ID,
+			msg,
 		)
 
 		if err != nil {
@@ -58,19 +63,31 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		return nil
 	}
+
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	if m.GuildID == "1403504316354134026" {
-		if m.Author.ID == "1324266845414625290" {
-			sendMessage("https://gif.fxtwitter.com/tweet_video/HQkcWVRXsAEv2RT.webp")
-			return
+	if m.GuildID == "1403504316354134026" && m.Author.ID == "1324266845414625290" {
+		sendMessage("https://gif.fxtwitter.com/tweet_video/HQkcWVRXsAEv2RT.webp")
+	}
+
+	if m.GuildID == "" && m.Author.ID == "1470860308875710716" {
+		_, err := s.ChannelMessageSend(
+			"1397697562051350541",
+			m.Content,
+		)
+
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
 
-	if rand.IntN(10-0) == 0 {
+	if rand.IntN(10) == 0 {
 		sendMessage("kill yourself")
+		if rand.IntN(50) == 50 {
+			sendMessage("KILL YOURSELF")
+		}
 	}
 
 	if strings.Contains(m.Content, "unbeatable") {
@@ -91,7 +108,7 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case "micheal":
 		sendMessage("are you taking the micheal")
 		sendMessage("https://klipy.com/gifs/renmakesmusic-micheal")
-	
+
 	case "demirramon":
 		payload := strings.NewReader(`origin=comments&page=1`)
 		req, err := http.NewRequest("POST", "https://demirramon.com/ajax/comments/load", payload)
@@ -126,29 +143,65 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		sendMessage(string(msg))
-	}
+	case "cat", "carlo":
+		krisNDB, err := os.ReadFile("ndb.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	
-	switch m.Author.ID {
-	case s.State.User.ID:
-		return
-	case "1324266845414625290": // arop
-		sendMessage(m.Content + "\nhttps://gif.fxtwitter.com/tweet_video/HQkcWVRXsAEv2RT.webp")
-		return
-	case "1385380882273140756": // switchflip
-		s.MessageReactionAdd(m.ChannelID, m.ID, "⭐")
-		return
-	case "1006951658774863943": // duck
-		sendMessage("what time he guck")
-		return
-	case "1163184972912398397": // who
-		sendMessage("orooeoeroero")
-		return
-	case "948354771729911828":
-		sendMessage(m.Content)
-		s.MessageReactionAdd(m.ChannelID, m.ID, "🇫")
-		s.MessageReactionAdd(m.ChannelID, m.ID, "🅰️")
-		s.MessageReactionAdd(m.ChannelID, m.ID, "🇬")
-		return
+		lines := strings.Split(string(krisNDB), "\n")
+		found := false
+
+		for i, line := range lines {
+			if strings.Contains(line, m.Author.ID) {
+				cats, _ := strconv.Atoi(line[:strings.IndexByte(line, ':')])
+				if m.Content == "cat" {
+					cats += 1
+				} else {
+					cats += 1000
+				}
+				sendMessage(fmt.Sprintf("<@%s> has %d jarops", m.Author.ID, cats))
+				lines[i] = fmt.Sprintf("%d:%s", cats, m.Author.ID)
+				found = true
+
+				break
+			}
+		}
+
+		if !found {
+			lines = append(lines, "1:" + m.Author.ID)
+		}
+
+		output := strings.Join(lines, "\n")
+		err = os.WriteFile("ndb.txt", []byte(output), 0644)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	case "dog":
+		krisNDB, err := os.ReadFile("ndb.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		lines := strings.Split(string(krisNDB), "\n")
+
+		for i, line := range lines {
+			if strings.Contains(line, m.Author.ID) {
+				sendMessage("kys i reset your jarops")
+				lines[i] = fmt.Sprintf("0:%s", m.Author.ID)
+
+				output := strings.Join(lines, "\n")
+				err = os.WriteFile("ndb.txt", []byte(output), 0644)
+
+
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				break
+			}
+		}
+
 	}
 }

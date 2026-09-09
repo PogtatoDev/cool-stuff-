@@ -131,6 +131,7 @@ struct Game {
     void init() {
         window = sf::RenderWindow(sf::VideoMode({WINDOW_W, WINDOW_H}),
                                   "i3 floating");
+        window.setFramerateLimit(120);
         vroom = false;
         auto_clock.start();
         population_text.move(sf::Vector2f(

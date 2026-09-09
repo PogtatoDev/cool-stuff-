@@ -1,5 +1,0 @@
-curl 'https://demirramon.com/ajax/comments/load' \
-  -X POST \
-  -H 'Connection: keep-alive' \
-  --data-binary \
-  $'------geckoformboundary40173aaa09a5467d946dda680d5437d3\r\nContent-Disposition: form-data; name=:q"origin"\r\n\r\n"comments"\r\n------geckoformboundary40173aaa09a5467d946dda680d5437d3\r\nContent-Disposition: form-data; name="page"\r\n\r\n1\r\n------geckoformboundary40173aaa09a5467d946dda680d5437d3\r\nContent-Disposition: form-data; name="order"\r\n\r\nnull\r\n------geckoformboundary40173aaa09a5467d946dda680d5437d3\r\nContent-Disposition: form-data; name="comment_id"\r\n\r\n523492\r\n------geckoformboundary40173aaa09a5467d946dda680d5437d3--\r\n'
