@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/System/Angle.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <iostream>
 #include <random>
@@ -30,8 +31,7 @@ i32 rand_range(i32 min, i32 max) {
 }
 
 Color rand_color() {
-    return Color(rand_range(255, 255), rand_range(255, 255),
-                 rand_range(255, 255));
+    return Color(rand_range(0, 255), rand_range(0, 255), rand_range(0, 255));
 }
 
 std::array<Drawable *, DRAW_LIST_SIZE> draw_list;
@@ -54,7 +54,7 @@ struct Ball {
         this->sprite.setPosition({static_cast<f32>(rand_range(0, 10)),
                                   static_cast<f32>(rand_range(-15, 25))});
         this->sprite.setFillColor(
-            Color(rand_range(0, 255), rand_range(0, 255), rand_range(0, 255)));
+            Color(rand_range(0, 255), rand_range(0, 255), rand_range(0, 128)));
         this->x_velocity = rand_range(20, 100);
 
         if (rand_range(0, 150) == 150)
@@ -238,6 +238,7 @@ int main() {
                         spr->setRadius(spr->getRadius() - 2.0 * dt);
                         spr->setPointCount(3);
                         spr->setFillColor(rand_color());
+                        spr->rotate(spr->getRotation() + radians(2));
                     }
                     if (spr->getPosition().x > VALID_AREA) {
                         score++;
@@ -297,16 +298,11 @@ int main() {
             score++;
         }
 
-        for (RectangleShape &r : hearts) {
-            r.setFillColor(Color::Transparent);
-        }
+        game_window.clear(Color::Blue);
 
-        for (i32 i = 0; i < std::min(lives, static_cast<i32>(hearts.size()));
-             i++) {
-            hearts[i].setFillColor(Color::Red);
+        for (i32 i = 0; i < lives; i++) {
             game_window.draw(hearts[i]);
         }
-        game_window.clear(Color::Blue);
 
         for (i32 i = 0; i < DRAW_LIST_SIZE; i++)
             if (draw_list[i])

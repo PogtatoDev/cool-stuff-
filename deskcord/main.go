@@ -31,37 +31,38 @@ func init() {
 func main() {
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
-		log.Fatal("whar")
-		return
+		log.Fatal("couldnt open discordgo for some reason what (" + err.Error() + ")")
 	}
 
 	dg.AddHandler(michealTimeHellYeah)
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages)
 
+	log.Println("added message created handler and intent")
+
 	err = dg.Open()
+	log.Println("websocket open")
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+
+	log.Println("the bot is RUNNING. sigterm it or whatever to kill it")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
-
+	
+	log.Println("closing websocket ...")
 	dg.Close()
 }
 
 func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
-	sendMessage := func(msg string) error {
+	sendMessage := func(msg string) {
 		_, err := s.ChannelMessageSend(
 			m.ChannelID,
 			msg,
 		)
 
-		if err != nil {
-			return err
-		}
-
-		return nil
+		log.Fatal("failed to send message!!! (" + err.Error() + ")")
 	}
 
 	if m.Author.ID == s.State.User.ID {
@@ -112,23 +113,29 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case "demirramon":
 		payload := strings.NewReader(`origin=comments&page=1`)
 		req, err := http.NewRequest("POST", "https://demirramon.com/ajax/comments/load", payload)
+
 		if err != nil {
 			log.Fatal("no lad")
 			return
 		}
 
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
 		resp, err := client.Do(req)
+
 		if err != nil {
-			return
+			resp.Body.Close()
+			log.Fatal("i couldnt send the request nooo (" + err.Error() + ")")
 		}
 
 		defer resp.Body.Close()
 
 		jsonData, err := io.ReadAll(resp.Body)
 		var data struct{ Comments []struct{ Comment string } }
-		_ = json.Unmarshal(jsonData, &data)
+		err = json.Unmarshal(jsonData, &data)
+
+		if err != nil {
+			log.Fatal("what the flip (" + err.Error() + ")")
+		}
 
 		sendMessage(data.Comments[1].Comment)
 	case "die die die":
@@ -146,7 +153,7 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case "cat", "carlo":
 		krisNDB, err := os.ReadFile("ndb.txt")
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("i dont wanna do these error messagse anymore (" + err.Error() + ")")
 		}
 
 		lines := strings.Split(string(krisNDB), "\n")
@@ -202,6 +209,5 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 				break
 			}
 		}
-
 	}
 }

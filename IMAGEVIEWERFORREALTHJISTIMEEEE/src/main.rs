@@ -4,6 +4,10 @@ use std::env::{self, args};
 use std::fmt::Write;
 use std::io::{self, Write as IOWrite};
 
+fn hi(raw: String) -> String {
+    "hi".to_string()
+}
+
 fn parse(raw: String) -> (usize, usize, Vec<u32>) {
     println!("[INFO]: started parsing .kif format into buffer");
     let mut buf: String = String::new();
@@ -106,6 +110,7 @@ fn convert_to_kif(filename: String) -> String {
             "{:02x}{:02x}{:02x};",
             channels[0], channels[1], channels[2]
         )
+
         .expect("[FATAL]: failed to write image pixels to .kif format");
     }
 

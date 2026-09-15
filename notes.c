@@ -3,16 +3,32 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
+
+
 #define NOTES_DIR "/home/seth/.notes/"
 #define NOTE_FILENAME_SIZE 128
 #define NOTE_DATA_SIZE 2048
 
-void malloc_error_check(void *ptr) {
+void malloc_error_check(void *ptr, int32_t ptr_count, ...){
     if (ptr == NULL) {
-        fputs("memory allocation failed\n", stderr);
+        fputs("memory allocation failed, freeing pointers...\n", stderr);
+        va_list ptrs;
+        va_start(ptrs, ptr_count);
+
+        for (int32_t i = 0; i < ptr_count; i++) {
+            void *ptr = va_arg(ptrs, void *);
+
+            if (ptr != NULL) {
+                free(ptr);
+                printf("freed %p\n", ptr);
+            }
+        }
         exit(-1);
     }
 }
+
+
 void get_processed_name(char *src, char *dest) {
     int i;
 
@@ -50,16 +66,22 @@ void new_note(char *name, char *data) {
     }
 
     char *processed_name = (char *)malloc(strlen(name) + 1);
-    malloc_error_check(processed_name);
+    malloc_error_check(processed_name, 0);
 
     get_processed_name(name, processed_name);
 
     char *filename = (char *)malloc(strlen(NOTES_DIR) + strlen(processed_name) + sizeof(".note") + 1);
-    malloc_error_check(filename);
+    malloc_error_check(filename, 1, processed_name);
 
     strcpy(filename, NOTES_DIR);
     strcat(filename, processed_name);
     strcat(filename, ".note");
+
+    if (!stat(filename, &st)) {
+        fputs("what the flip laddy\n", stderr);
+        free(filename);
+        exit(1);
+    }
 
     FILE *note = fopen(filename, "w");
     if (note == NULL) {
@@ -68,6 +90,7 @@ void new_note(char *name, char *data) {
         free(processed_name);
         exit(2);
     }
+
     fprintf(note, "%s", data);
     fclose(note);
 
@@ -79,13 +102,13 @@ void new_note(char *name, char *data) {
 
 void read_note(char *name) {
     char *buffer = (char *)malloc(NOTE_DATA_SIZE);
-    malloc_error_check(buffer);
+    malloc_error_check(buffer, 0);
     char *processed_name = (char *)malloc(NOTE_FILENAME_SIZE);
-    malloc_error_check(processed_name);
+    malloc_error_check(processed_name, 1, buffer);
     get_processed_name(name, processed_name);
 
     char *filename = (char *)malloc(256);
-    malloc_error_check(filename);
+    malloc_error_check(filename, 2, processed_name, buffer);
     strcpy(filename, NOTES_DIR);
     strcat(filename, processed_name);
     strcat(filename, ".note");
@@ -132,8 +155,7 @@ void list_notes() {
             if (raw_name[i] == '-') processed_name[i] = ' ';
             else processed_name[i] = raw_name[i];
         }
-
-        remove_substr(processed_name, ".note");
+remove_substr(processed_name, ".note");
 
         if (note_ent->d_type != DT_REG && note_ent->d_name[0] != '.') {
             free(processed_name);
@@ -148,9 +170,9 @@ void list_notes() {
 // TODO: implement an actual text editor (nano is temporary)
 void edit_note(char *name) {
     char *filename = (char *)malloc(128);
-    malloc_error_check(filename);
+    malloc_error_check(filename, 0);
     char *processed_name = malloc(sizeof(NOTES_DIR) + strlen(name) + 1);
-    malloc_error_check(processed_name);
+    malloc_error_check(processed_name, 1, filename);
 
     get_processed_name(name, processed_name);
     strcpy(filename, NOTES_DIR);

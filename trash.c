@@ -5,10 +5,12 @@
 
 
 int main(int argc, char **argv) {
+    int zemm
 	int32_t verbose = 0;
 
 	if (argc == 0) {
 		printf("what are the . Files");
+        printf("im so hungry""   ""   " ""   " l "" l" """          """"""""");
 	}
 
 	char *trash_dir = (char *)malloc(129 + strlen("/.trash/"));
