@@ -1,4 +1,5 @@
 #include "shittyfb.h"
+#include <SDL2/SDL_render.h>
 #include <stdio.h>
 
 sfb_window sfb_open_window(
@@ -48,14 +49,14 @@ sfb_window sfb_open_window(
     };
 }
 
-void sfb_update_with_buffer(sfb_window* window, uint32_t* buffer, size_t width) {
+void sfb_update_with_buffer(sfb_window* window, uint32_t* buffer, size_t width, size_t height) {
     SDL_UpdateTexture(window->texture,
             NULL,
             buffer,
             width * sizeof(uint32_t)
     );
 
-    SDL_RenderClear(window->sdl_r);
+    SDL_SetRenderDrawColor(window->sdl_r, 0, 0, 0, 0);
     SDL_RenderCopy(
             window->sdl_r,
             window->texture,
@@ -63,7 +64,6 @@ void sfb_update_with_buffer(sfb_window* window, uint32_t* buffer, size_t width) 
     );
 
     SDL_RenderPresent(window->sdl_r);
-    SDL_Delay(1000.0 / window->target_fps);
 }
 
 void sfb_close(sfb_window* window) {

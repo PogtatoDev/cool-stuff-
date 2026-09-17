@@ -1,0 +1,33 @@
+{
+    "workspace.library": [
+        "/home/seth/.config/nvim",
+        "/home/seth/.local/share/nvim/site",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/nvim-treesitter",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/blink.cmp",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/LuaSnip",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/conform.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/mason-tool-installer.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/mason-lspconfig.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/mason.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/nvim-lspconfig",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/fidget.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/telescope-file-browser.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/telescope-ui-select.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/telescope.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/plenary.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/mini.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/todo-comments.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/gruber-dark",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/rose-pine",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/tokyonight.nvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/firenvim",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/guess-indent.nvim",
+        "/usr/share/nvim/runtime",
+        "/usr/share/nvim/runtime/pack/dist/opt/netrw",
+        "/usr/share/nvim/runtime/pack/dist/opt/matchit",
+        "/home/seth/.local/share/nvim/site/pack/core/opt/mason-lspconfig.nvim/after",
+        "${3rd}/luassert/library",
+        "${3rd}/luv/library"
+    ]
+}

@@ -18,7 +18,7 @@ typedef struct {
 } sfb_window;
 
 sfb_window sfb_open_window(SDL_WindowFlags w_flags, SDL_RendererFlags r_flags, size_t width, size_t height, uint32_t pixelformat);
-void sfb_update_with_buffer(sfb_window* window, uint32_t* buffer, size_t width);
+void sfb_update_with_buffer(sfb_window* window, uint32_t* buffer, size_t width, size_t height);
 void sfb_close(sfb_window* window);
 
 #endif

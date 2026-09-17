@@ -1,14 +1,13 @@
 use num_traits::AsPrimitive;
 use std::sync::OnceLock;
-use std::ops::{Add, Mul, Sub};
 
 
 static W_LOCK: OnceLock<usize> = OnceLock::new();
 static H_LOCK: OnceLock<usize> = OnceLock::new();
 
 pub fn init_utils(width: usize, length: usize) {
-    W_LOCK.set(width);
-    H_LOCK.set(length);
+    W_LOCK.set(width).unwrap();
+    H_LOCK.set(length).unwrap();
 }
 
 #[inline(always)]

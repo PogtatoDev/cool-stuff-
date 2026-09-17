@@ -240,6 +240,7 @@ int main() {
                         spr->setFillColor(rand_color());
                         spr->rotate(spr->getRotation() + radians(2));
                     }
+
                     if (spr->getPosition().x > VALID_AREA) {
                         score++;
                         if (lives < 20)
