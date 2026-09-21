@@ -146,7 +146,7 @@ fn main() {
 
         while window.is_open() {
             window.update();
-            if window.get_size() != old_size {
+            if window.get_size() != old_size || window.is_key_pressed(Key::U, KeyRepeat::Yes) {
                 window.update_with_buffer(&buffer, width, height).unwrap();
             }
 
