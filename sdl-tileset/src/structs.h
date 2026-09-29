@@ -1,12 +1,19 @@
 #ifndef __STRUCTS__
 #define __STRUCTS__
 
+
 #include <SDL2/SDL.h>
 
 typedef struct {
-    int active;
-    int type;
-    int z_idx;
+    int row_size;
+    int tile_size;
+    int tile_arr_size;
+
+    int* tiles;
+} TileMap;
+
+
+typedef struct {
     union {
         struct {
             SDL_Rect rect;
@@ -18,6 +25,11 @@ typedef struct {
             SDL_Rect dest_rect;
         } Sprite;
     };
+
+    int active;
+    int type;
+    int z_idx;
+    int id;
 } DrawItem;
 
 typedef struct {
@@ -27,10 +39,9 @@ typedef struct {
     SDL_Renderer* renderer;
     SDL_Window* window;
     DrawItem* draw_pool;
-    DrawItem* sorted_pool;
 
-    int mouse_x;
-    int mouse_y;
+    SDL_Point mouse_pos;
+
     int draw_pool_size;
     int active_draw_items;
 

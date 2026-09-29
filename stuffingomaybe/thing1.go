@@ -21,6 +21,7 @@ type Game struct {
 	rectPosition       vector2
 }
 
+
 func (g *Game) Update() error {
 	g.clickOnCurrentTick = ebiten.IsMouseButtonPressed(ebiten.MouseButton0)
 	return nil

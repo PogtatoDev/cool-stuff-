@@ -2,10 +2,6 @@
 #define __GAME__
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_rect.h>
-#include <SDL2/SDL_render.h>
 #include <stdlib.h>
 
 #include "drawpool.h"
@@ -24,6 +20,14 @@ void game_update(Game* g, float dt) {
         }
     }
 
+    for (int i = 0; i < g->active_draw_items; i++) {
+        if (g->draw_pool[i].type == RECT) {
+            g->draw_pool[i].Rect.rect.x = rand() % WINDOW_W;
+            g->draw_pool[i].Rect.rect.y = rand() % WINDOW_H;
+        }
+
+    }
+
     SDL_GetMouseState(&g->mouse_x, &g->mouse_y);
 }
 
@@ -31,12 +35,15 @@ void game_draw(Game* g) {
     SDL_SetRenderDrawColor(g->renderer, 0, 0, 0, 255);
     SDL_RenderClear(g->renderer);
 
-    for (int i = 0; i < g->draw_pool_size; i++) {
-        if (g->draw_pool[i] == NULL) continue;
-        switch (g->draw_pool[i]->type) {
+    for (int i = 0; i < g->active_draw_items; i++) {
+        if (!g->draw_pool[i].active) continue;
+        switch (g->draw_pool[i].type) {
         case RECT:
-            SDL_RenderFillRect(g->renderer, &g->draw_pool[i]->Rect.rect);
+            SDL_SetRenderDrawColor(g->renderer, 255, 0, 0, 0);
+            SDL_RenderFillRect(g->renderer, &g->draw_pool[i].Rect.rect);
+            break;
         }
+
     }
 
     SDL_RenderPresent(g->renderer);
@@ -60,18 +67,20 @@ void game_ready(Game* g) {
     SDL_GetDesktopDisplayMode(-1, &g->display_mode);
 
     g->draw_pool_size = 256;
-    g->draw_pool = (DrawItem**)malloc(sizeof(DrawItem*) * g->draw_pool_size);
+    g->draw_pool = (DrawItem*)malloc(sizeof(DrawItem) * g->draw_pool_size);
 
     for (int i = 0; i < g->draw_pool_size; i++) {
-        g->draw_pool[i] = NULL;
+        g->draw_pool[i].active = 0;
     }
 
     g->is_open = 1;
 
-    DrawItem d;
-    d.type = RECT;
-    d.Rect.rect = (SDL_Rect) { .x = 50, .y = 50, .w = 10, .h = 10 };
-    draw_pool_insert(&d, -1, g->draw_pool, g->draw_pool_size, &g->active_draw_items);
+    for (int i = 0; i < 16; i++) {
+        DrawItem d;
+        d.type = RECT;
+        d.Rect.rect = (SDL_Rect) { .x = rand() % WINDOW_W, .y = rand() % WINDOW_H, .w = 10, .h = 10 };
+        draw_pool_insert(&d, -1, g->draw_pool, g->draw_pool_size, &g->active_draw_items);
+    }
 }
 
 #endif
