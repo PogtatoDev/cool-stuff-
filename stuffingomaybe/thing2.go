@@ -72,6 +72,7 @@ func convertToKIF(filename string) (*os.File, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		fmt.Println("failed to open " + f.Name())
+		// what
 		return nil, err
 	}
 

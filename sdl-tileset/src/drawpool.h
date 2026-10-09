@@ -1,11 +1,12 @@
 #ifndef __DRAWPOOL__
 #define __DRAWPOOL__
 
-#include "structs.h"
-#include "utils.h"
-#include "defines.h"
-#include <SDL2/SDL_render.h>
 #include <stdio.h>
+#include <SDL2/SDL.h>
+
+#include "defines.h"
+#include "drawitem.h"
+#include "utils.h"
 
 void draw_pool_insert_rect(
         SDL_Rect* rect,
@@ -53,6 +54,61 @@ inline DrawItem* get_item_from_id(int id, DrawItem* draw_pool, int draw_pool_siz
     }
 
     return NULL;
+}
+
+inline void draw_pool_clear(DrawItem* draw_pool, int draw_pool_size, int* active_draw_items) {
+    for (int i = 0; i < draw_pool_size; i++) {
+        draw_pool[i].active = 0;
+    }
+
+    active_draw_items = 0;
+}
+
+void draw_pool_insert_sprite_size(
+        SDL_Texture* sprite,
+        SDL_Point position,
+        SDL_Point size,
+        int z_idx,
+
+        DrawItem* draw_pool,
+        int draw_pool_size,
+        int* active_draw_items
+) {
+    int idx = -1;
+    for (int i = 0; i < draw_pool_size; i++) {
+        if (!draw_pool[i].active) {
+            idx = i;
+            break;
+        }
+    }
+
+    if (idx == -1) {
+        fputs("what (seeyuh version)", stderr);
+        exit(-1);
+    }
+
+    SDL_Rect dest_rect;
+
+    dest_rect.w = size.x;
+    dest_rect.h = size.y;
+    // im back form santo domingo
+    dest_rect.x = position.x;
+    dest_rect.y = position.y;
+
+    draw_pool[idx].type = SPRITE;
+    draw_pool[idx].Sprite.sprite = sprite;
+    draw_pool[idx].Sprite.dest_rect = dest_rect;
+
+    if (z_idx == -1) {
+        draw_pool[idx].z_idx = idx;
+    } else {
+        draw_pool[idx].z_idx = z_idx;
+    }
+
+    draw_pool[idx].active = 1;
+    (*active_draw_items) += 1;
+
+    qsort(draw_pool, draw_pool_size, sizeof(DrawItem), cmp_z_idx);
 }
 
 void draw_pool_insert_sprite(

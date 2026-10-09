@@ -62,7 +62,9 @@ func michealTimeHellYeah(s *discordgo.Session, m *discordgo.MessageCreate) {
 			msg,
 		)
 
-		log.Fatal("failed to send message!!! (" + err.Error() + ")")
+		if err != nil {
+			log.Fatal("failed to send message!!! (" + err.Error() + ")")
+		}
 	}
 
 	if m.Author.ID == s.State.User.ID {

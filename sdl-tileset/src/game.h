@@ -2,17 +2,40 @@
 #define __GAME__
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_filesystem.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_pixels.h>
 #include <stdlib.h>
 
 #include "defines.h"
-#include "drawpool.h"
-#include "structs.h"
+#include "room.h"
+#include "drawitem.h"
+#include "entity.h"
+#include "utils.h"
 
 #define WINDOW_W 640
 #define WINDOW_H 480
 
+typedef struct {
+    SDL_Event event;
+    SDL_DisplayMode display_mode;
+
+    SDL_Renderer* renderer;
+    SDL_Window* window;
+
+    DrawItem* draw_pool;
+    EntityBase* entity_pool;
+
+    SDL_Point mouse_pos;
+
+    int draw_pool_size;
+    int active_draw_items;
+
+    int entity_pool_size;
+    int active_entities;
+
+    int8_t is_open;
+} Game;
 
 void game_poll_events(Game *g) {
     while (SDL_PollEvent(&g->event)) {
@@ -26,14 +49,6 @@ void game_poll_events(Game *g) {
 
 void game_update(Game* g, float dt_ms) {
     game_poll_events(g);
-
-    for (int i = 0; i < g->active_draw_items; i++) {
-        if (g->draw_pool[i].type == SPRITE) {
-            g->draw_pool[i].Sprite.dest_rect.x = rand() % WINDOW_W;
-            g->draw_pool[i].Sprite.dest_rect.y = rand() % WINDOW_H;
-        }
-    }
-
     SDL_Delay(dt_ms);
 }
 
@@ -72,6 +87,8 @@ void game_draw(Game* g) {
 
     }
 
+
+
     SDL_RenderPresent(g->renderer);
 }
 
@@ -84,21 +101,15 @@ void init_draw_pool(Game* g) {
         g->draw_pool[i].active = 0;
         g->draw_pool[i].id = i;
     }
-
-    for (int i = 0; i < 16; i++) {
-        SDL_Texture* texture = IMG_LoadTexture(g->renderer, "hi.png");
-        if (texture == NULL) {
-            printf("%s\n", IMG_GetError());
-        }
-
-        draw_pool_insert_sprite(texture, (SDL_Point) { rand() % WINDOW_W, rand() % WINDOW_H }, -1, DRAWPOOL_FUNC_END);
-    }
 }
 
 void game_init(Game* g) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0 || IMG_Init(IMG_INIT_PNG) < 0) {
         exit(1);
     }
+
+    base_path = malloc(128 * sizeof(char));
+    strncpy(base_path, SDL_GetBasePath(), 128);
 
     g->window = SDL_CreateWindow(
             "hi",
@@ -117,6 +128,8 @@ void game_init(Game* g) {
 
 void game_ready(Game* g) {
     game_init(g);
+
+    TileSet* tileset = create_tileset("../assets/tileset/test.tileset", g->renderer);
 }
 
 #endif

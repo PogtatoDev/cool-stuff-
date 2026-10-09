@@ -1,3 +1,4 @@
 Diagnostics:
   Suppress:
     - misc-definitions-in-headers
+    - pp_including_mainfile_in_preamble
