@@ -87,8 +87,6 @@ void game_draw(Game* g) {
 
     }
 
-
-
     SDL_RenderPresent(g->renderer);
 }
 
@@ -96,6 +94,8 @@ void game_draw(Game* g) {
 void init_draw_pool(Game* g) {
     g->draw_pool_size = 1024;
     g->draw_pool = (DrawItem*)malloc(sizeof(DrawItem) * g->draw_pool_size);
+    g->active_draw_items = 0;
+    g->active_entities = 0;
 
     for (int i = 0; i < g->draw_pool_size; i++) {
         g->draw_pool[i].active = 0;
@@ -129,7 +129,15 @@ void game_init(Game* g) {
 void game_ready(Game* g) {
     game_init(g);
 
-    TileSet* tileset = create_tileset("../assets/tileset/test.tileset", g->renderer);
+    TileSet* tileset = create_tileset("assets/tileset/test.tileset", g->renderer);
+    TileMap* tilemap = create_tilemap("assets/tilemap/hiii.map", TILEMAP_LOAD_FUNC_END);
+
+    draw_pool_load_tilemap(
+            tilemap,
+            tileset,
+            WINDOW_W,
+            DRAWPOOL_FUNC_END
+    );
 }
 
 #endif

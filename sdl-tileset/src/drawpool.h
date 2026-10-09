@@ -8,7 +8,7 @@
 #include "drawitem.h"
 #include "utils.h"
 
-void draw_pool_insert_rect(
+int draw_pool_insert_rect(
         SDL_Rect* rect,
         SDL_Color color,
         int z_idx,
@@ -44,6 +44,8 @@ void draw_pool_insert_rect(
     *(active_draw_items) += 1;
 
     qsort(draw_pool, draw_pool_size, sizeof(DrawItem), cmp_z_idx);
+
+    return draw_pool->id;
 }
 
 inline DrawItem* get_item_from_id(int id, DrawItem* draw_pool, int draw_pool_size) {
@@ -64,7 +66,7 @@ inline void draw_pool_clear(DrawItem* draw_pool, int draw_pool_size, int* active
     active_draw_items = 0;
 }
 
-void draw_pool_insert_sprite_size(
+int draw_pool_insert_sprite_size(
         SDL_Texture* sprite,
         SDL_Point position,
         SDL_Point size,
@@ -109,9 +111,11 @@ void draw_pool_insert_sprite_size(
     (*active_draw_items) += 1;
 
     qsort(draw_pool, draw_pool_size, sizeof(DrawItem), cmp_z_idx);
+
+    return draw_pool->id;
 }
 
-void draw_pool_insert_sprite(
+int draw_pool_insert_sprite(
         SDL_Texture* sprite,
         SDL_Point position,
         int z_idx,
@@ -160,6 +164,8 @@ void draw_pool_insert_sprite(
     (*active_draw_items) += 1;
 
     qsort(draw_pool, draw_pool_size, sizeof(DrawItem), cmp_z_idx);
+
+    return draw_pool[idx].id;
 }
 
 void draw_pool_remove(

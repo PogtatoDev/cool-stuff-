@@ -23,7 +23,6 @@ struct Cell {
 
     Cell() {
         idx = 0;
-        int tile_n = 0;
         sprite = sf::RectangleShape({CELL_SIZE, CELL_SIZE});
     }
 };
@@ -53,24 +52,52 @@ struct Game {
   public:
     sf::RenderWindow window;
 
-    Game() {
+    void load_file(std::string filename) {
+        std::ifstream file(filename);
+        std::string hi;
+
+        int i = 0;
+
+        while (std::getline(file, hi)) {
+            board[i]->tile_n = std::stoi(hi);
+            board[i]->label.setString(std::to_string(board[i]->tile_n));
+            i++;
+        }
+    }
+
+    int aaa;
+    char** vvv;
+
+    Game(int argc, char **argv) {
+        aaa = argc;
+        vvv = argv;
         window = sf::RenderWindow(sf::VideoMode({WINDOW_W, WINDOW_H}),
                                   "i3 floating");
         window.setFramerateLimit(240);
 
         current_tile_n = 0;
 
+
         for (int i = 0; i < board.size(); i++) {
             board[i] = new Cell;
 
             board[i]->idx = i;
             board[i]->sprite.setPosition(index_to_position(i));
-            board[i]->label.setString(std::to_string(board[i]->tile_n));
             board[i]->label.setPosition(
                 sf::Vector2f(board[i]->sprite.getPosition().x + CELL_SIZE / 3,
                              board[i]->sprite.getPosition().y + CELL_SIZE / 3));
             board[i]->label.setCharacterSize(CELL_SIZE / 2);
         }
+
+        if (argc != 1) {
+            load_file(argv[1]);
+        } else {
+            for (int i = 0; i < board.size(); i++) {
+                board[i]->tile_n = 0;
+                board[i]->label.setString(std::to_string(board[i]->tile_n));
+            }
+        }
+
 
         for (int i = 0; i < rows.size(); i++) {
             rows[i].setSize({1, WINDOW_H});
@@ -92,9 +119,19 @@ struct Game {
     }
 
     void save() {
-        std::ofstream file("out.map");
-        for (int i = 0; i < board.size(); i++) {
-            file << board[i]->tile_n << " ";
+        if (aaa != 1) {
+            std::ofstream file(vvv[1]);
+            for (int i = 0; i < board.size(); i++) {
+                file << board[i]->tile_n << "\n";
+            }
+        } else {
+            std::string g;
+            std::cin >> g;
+
+            std::ofstream file(std::string("../assets/tilemap/") + g + std::string(".map"));
+            for (int i = 0; i < board.size(); i++) {
+                file << board[i]->tile_n << "\n";
+            }
         }
     }
 
@@ -175,8 +212,8 @@ struct Game {
     }
 };
 
-int main() {
-    Game game;
+int main(int argc, char **argv) {
+    Game game(argc, argv);
     while (game.window.isOpen()) {
         game.update();
         game.draw();
