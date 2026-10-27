@@ -1,11 +1,11 @@
 #ifndef __ROOM__
 #define __ROOM__
 
-#include "drawpool.h"
-#include "utils.h"
+#include "defines.c"
+#include "drawpool.c"
+#include "utils.c"
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_stdinc.h>
 #include <ctype.h>
 
 #define FULL_PATH_SIZE 128 + sizeof("assets/tilemap/img/") + sizeof(fuck) + sizeof(line)
@@ -35,11 +35,8 @@ TileSet* create_tileset(char *filename, SDL_Renderer* renderer) {
     fgets(line, sizeof(line), tileset_f);
     line[strcspn(line, "\n")] = 0;
 
-    char myfatballs[5];
-    strncpy(myfatballs, line, sizeof(myfatballs));
-
-    if (strcmp(myfatballs, "NAME") == 0) {
-        printf("No bruh\n");
+    if (strncmp(line, "NAME", 4)) {
+        printf("No br.c\n");
         exit(1);
     }
 
@@ -76,15 +73,24 @@ TileSet* create_tileset(char *filename, SDL_Renderer* renderer) {
 }
 
 void destroy_tileset(TileSet* tileset) {
-    free(tileset->textures);
+    for (int i = 0; i <= tileset->count; i++) {
+        SDL_DestroyTexture(tileset->textures[i]);
+    }
+
+    SDL_free(tileset->textures);
     free(tileset);
 }
 
 TileMap* create_tilemap(char* filename, int tile_size, int window_w, int window_h) {
     FILE* tilemap_f = fopen(filename, "r");
+    if (tilemap_f == NULL) {
+        printf("HI file doesnt exist tilemap edition\n");
+        exit(1);
+    }
+
     char line[16];
     const int TILE_ARR_SIZE = (window_h / tile_size) * (window_w / tile_size);
-    int* tiles = malloc(TILE_ARR_SIZE);
+    int* tiles = malloc(sizeof(int) * TILE_ARR_SIZE);
     int i = 0;
     while (fgets(line, sizeof(line), tilemap_f)) {
         line[strcspn(line, "\n")] = 0;
@@ -98,7 +104,7 @@ TileMap* create_tilemap(char* filename, int tile_size, int window_w, int window_
     tilemap->row_size = window_w / tile_size;
     tilemap->tile_size = tile_size;
     tilemap->tiles = tiles;
-    tilemap->tile_draw_pool_ids = malloc(TILE_ARR_SIZE);
+    tilemap->tile_draw_pool_ids = malloc(sizeof(int) * TILE_ARR_SIZE);
     tilemap->tile_arr_size = TILE_ARR_SIZE;
 
     return tilemap;
@@ -128,14 +134,7 @@ void draw_pool_load_tilemap(
         if (tilemap->tiles[i]) {
             id = draw_pool_insert_sprite_size(
                     tileset->textures[tilemap->tiles[i]],
-                    pos, tile_size, 0,
-                    draw_pool, draw_pool_size, active_draw_items
-            );
-        } else {
-            id = draw_pool_insert_rect(
-                    &(SDL_Rect) { pos.x, pos.y, tile_size.x, tile_size.y },
-                    (SDL_Color) { 0, 0, 0, 0 },
-                    0,
+                    pos, tile_size, 0, 0,
                     draw_pool, draw_pool_size, active_draw_items
             );
         }

@@ -8,4 +8,6 @@
 
 #define TILEMAP_LOAD_FUNC_END 20, WINDOW_W, WINDOW_H
 
+#define __DEBUG__
+
 #endif

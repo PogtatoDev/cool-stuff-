@@ -2,16 +2,16 @@
 #define __GAME__
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_filesystem.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_pixels.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
 #include <stdlib.h>
 
-#include "defines.h"
-#include "room.h"
-#include "drawitem.h"
-#include "entity.h"
-#include "utils.h"
+#define __DEBUG__
+#include "defines.c"
+#include "room.c"
+#include "drawitem.c"
+#include "entity.c"
+#include "utils.c"
 
 #define WINDOW_W 640
 #define WINDOW_H 480
@@ -53,11 +53,12 @@ void game_update(Game* g, float dt_ms) {
 }
 
 void game_draw(Game* g) {
+    // seeyuh;
     SDL_SetRenderDrawColor(g->renderer, 0, 0, 0, 255);
     SDL_RenderClear(g->renderer);
 
     for (int i = 0; i < g->active_draw_items; i++) {
-        if (!g->draw_pool[i].active) continue;
+        if (!(g->draw_pool[i].flags & DRAWITEM_ACTIVE)) continue;
         switch (g->draw_pool[i].type) {
         case RECT:
         {
@@ -70,9 +71,11 @@ void game_draw(Game* g) {
                     c->b,
                     c->a
             );
-       }
+
             SDL_RenderFillRect(g->renderer, &g->draw_pool[i].Rect.rect);
             break;
+       }
+
         case SPRITE:
         {
             SDL_RenderCopy(
@@ -88,6 +91,7 @@ void game_draw(Game* g) {
     }
 
     SDL_RenderPresent(g->renderer);
+    // w faps!;
 }
 
 
@@ -95,11 +99,21 @@ void init_draw_pool(Game* g) {
     g->draw_pool_size = 1024;
     g->draw_pool = (DrawItem*)malloc(sizeof(DrawItem) * g->draw_pool_size);
     g->active_draw_items = 0;
+
+    for (int i = 0; i < g->draw_pool_size; i++) {
+        g->draw_pool[i].flags = 0;
+        g->draw_pool[i].id = i;
+    }
+}
+
+void init_entity_pool(Game* g) {
+    g->entity_pool_size = 1024;
+    g->entity_pool = (EntityBase*)malloc(sizeof(EntityBase) * g->entity_pool_size);
     g->active_entities = 0;
 
     for (int i = 0; i < g->draw_pool_size; i++) {
-        g->draw_pool[i].active = 0;
-        g->draw_pool[i].id = i;
+        g->entity_pool[i].flags = 0;
+        g->entity_pool[i].id = i;
     }
 }
 
@@ -138,6 +152,15 @@ void game_ready(Game* g) {
             WINDOW_W,
             DRAWPOOL_FUNC_END
     );
+
+    SDL_Rect mynuts = (SDL_Rect) { 50, 50, 100, 10 };
+
+    draw_pool_insert_rect(&mynuts, (SDL_Color) { 255, 0, 0, 255 }, 10, 0, DRAWPOOL_FUNC_END);
+}
+
+void game_close(Game* g) {
+    SDL_DestroyWindow(g->window);
+    SDL_DestroyRenderer(g->renderer);
 }
 
 #endif

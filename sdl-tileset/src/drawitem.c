@@ -3,6 +3,9 @@
 
 #include <SDL2/SDL.h>
 
+#define DRAWITEM_ACTIVE (1 << 1)
+#define DRAWITEM_ALWAYS_ON_TOP (1 << 2)
+
 typedef struct {
     union {
         struct {
@@ -16,8 +19,8 @@ typedef struct {
         } Sprite;
     };
 
-    int active;
-    int ui_element;
+    int flags;
+
     int type;
     int z_idx;
     int id;
